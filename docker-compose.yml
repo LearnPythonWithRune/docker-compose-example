@@ -1,0 +1,33 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  ingress-egress-mysql:
+    image: ingress-egress-mysql
+    ports:
+      - "3306:3306"
+    depends_on:
+      - prometheus
+  fruit-api-v3:
+    image: fruit-api-v3
+    ports:
+      - "8000:8000"
+    depends_on:
+      - prometheus
+      - ingress-egress-mysql
+  etl:
+    image: etl
+    depends_on:
+      - fruit-api-v3
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+      - ingress-egress-mysql
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana-data:/var/lib/grafana
